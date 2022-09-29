@@ -1,0 +1,84 @@
+service: tto-backend
+ 
+plugins:
+  - serverless-python-requirements
+  - serverless-wsgi
+  - serverless-dynamodb-local
+ 
+custom:
+  wsgi:
+    app: app.app
+    packRequirements: false
+  pythonRequirements:
+    dockerizePip: non-linux
+  dynamodb:
+    stages:
+      - ${self:provider.stage}
+    start:
+      migrate: true
+ 
+provider:
+  name: aws
+  runtime: python3.8
+  stage: dev
+  region: us-east-1
+  environment:
+    LOGIN_TABLE: ${self:service}-login-${opt:stage, self:provider.stage}
+    USER_TABLE: ${self:service}-users-${opt:stage, self:provider.stage}    
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": ["loginTable", "Arn" ] }
+        - { "Fn::GetAtt": ["userTable", "Arn" ] }
+
+
+functions:
+  app:
+    handler: wsgi_handler.handler
+    events:
+      - http: ANY /
+      - http: 'ANY /{proxy+}'
+
+resources:
+  Resources:
+    loginTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.LOGIN_TABLE}
+        AttributeDefinitions:
+          - AttributeName: requestID
+            AttributeType: S
+        KeySchema:
+          - AttributeName: requestID
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        
+    userTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.USER_TABLE}
+        AttributeDefinitions:
+          - AttributeName: userID
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userID
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+package:
+  patterns:
+    - '!node_modules/**'
+    - '!venv/**'
+    - '!.dynamodb/**'
+    

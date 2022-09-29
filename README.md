@@ -1,2 +1,7 @@
-# TTO-Backend
-Backend for the TTO webapp! Cool Beans :00!!!
+npm install
+set up python virtual environment 
+
+serverless dynamodb install
+
+serverless dynamodb start
+seperate terminal: serverless wsgi serve
