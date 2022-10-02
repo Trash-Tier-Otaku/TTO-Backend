@@ -53,10 +53,10 @@ resources:
       Properties:
         TableName: ${self:provider.environment.LOGIN_TABLE}
         AttributeDefinitions:
-          - AttributeName: requestID
+          - AttributeName: request_id
             AttributeType: S
         KeySchema:
-          - AttributeName: requestID
+          - AttributeName: request_id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
@@ -67,10 +67,10 @@ resources:
       Properties:
         TableName: ${self:provider.environment.USER_TABLE}
         AttributeDefinitions:
-          - AttributeName: userID
+          - AttributeName: user_id
             AttributeType: S
         KeySchema:
-          - AttributeName: userID
+          - AttributeName: user_id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

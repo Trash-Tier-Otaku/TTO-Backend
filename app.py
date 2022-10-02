@@ -1,30 +1,12 @@
-from dotenv import load_dotenv 
-load_dotenv()
-
-import os
-
-import boto3 
 from flask import Flask, jsonify, request
+from flask_restful import Api
+from routes import Auth, Callback
 
 app = Flask(__name__)
- 
-IS_OFFLINE = os.getenv('IS_OFFLINE')
+api = Api(app)
 
-if IS_OFFLINE:
-    client = boto3.client(
-        'dynamodb',
-        region_name='localhost',
-        endpoint_url='http://localhost:8000'
-    )
-else:
-    client = boto3.client('dynamodb') 
-
-LOGIN_TABLE = os.getenv('LOGIN_TABLE')
-USER_TABLE = os.getenv('USER_TABLE')
-
-MAL_API_ID = os.getenv('MAL_API_ID')
-MAL_API_SECRET = os.getenv('MAL_API_SECRET')
-
+api.add_resource(Auth, '/auth')
+api.add_resource(Callback, '/callback')
 @app.route("/")
 def hello():
     return "Hello World!"
